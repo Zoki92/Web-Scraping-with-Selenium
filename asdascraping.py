@@ -1,30 +1,22 @@
 from selenium import webdriver
-
-import urllib.request
-from bs4 import BeautifulSoup
+from selenium.webdriver.firefox.options import Options
 import time
-import pandas as pd
 
+
+data = []
 urlpage = "https://groceries.asda.com/search/bananas"
-driver = webdriver.Firefox()
+options = Options()
+options.headless = True
+driver = webdriver.Firefox(firefox_options=options)
 
 driver.get(urlpage)
 driver.execute_script(
     "window.scrollTo(0, document.body.scrollHeight);var lenOfPage=document.body.scrollHeight;return lenOfPage;")
-time.sleep(30)
+time.sleep(10)
 
 results = driver.find_elements_by_xpath(
-    "//*[@id='componentsContainer']//*[contains(@id,'listingsContainer')]//*[@class='product active']//*[@class='title productTitle']")
-print('Number of results', len(results))
-
-data = []
-for result in results:
-    product_name = result.text
-    link = result.find_element_by_tag_name('a')
-    product_link = link.get_attribute("href")
-    data.append({"product": product_name, "link": product_link})
+    "//*[@id='listings']/div[2]/div/div/div/div[2]/div[4]/div/div[1]/div/span[2]")
 
 
+data.append(float(results[0].text[1:5]))
 driver.quit()
-df = pd.DataFrame(data)
-df.to_csv('asdaBananas.csv')
